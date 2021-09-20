@@ -10,6 +10,11 @@
 
 #include "myPN532_def.h"
 
+#ifndef BOOL
+#define BOOL _Bool
+#endif
+
+
 // ---------------------------- HARDWARE -----------------------------
 #ifndef PN532_I2C_HANDLE
 #define PN532_I2C_HANDLE 				hi2c2
