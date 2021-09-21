@@ -14,6 +14,17 @@
 #define BOOL _Bool
 #endif
 
+#ifndef NULL
+#define NULL 0
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
 
 // ---------------------------- HARDWARE -----------------------------
 #ifndef PN532_I2C_HANDLE
