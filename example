@@ -30,10 +30,10 @@ uint32_t HAL_Diff(uint32_t t)
 
 void PN532_detect_uid(uint8_t *uid, uint8_t uid_len)
 {
-#define SECTOR					(0x07)
 	uint8_t sec = 0x07;
 	uint8_t block_number = (sec * 4 + 3);
 	uint8_t key_auth[6] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+	uint8_t block_data[16];
 	
 	PN532_res = PN532_MifareClassicAuthBlock(uid, uid_len, block_number, MIFARE_CMD_AUTH_A, key_auth);
 	ulog_fmt("PN532: MifareClassicAuthenticateBlock read_block er = %d block = %d\r\n", PN532_res, block_number);
