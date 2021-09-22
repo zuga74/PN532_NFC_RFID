@@ -7,7 +7,9 @@
 
 #include "myPN532.h"
 #include <string.h>
-
+#ifdef PN532_PRINT_DEBUG
+#include <stdio.h>
+#endif
 
 const uint8_t pn532_ack[] = {PN532_PREAMBLE, PN532_STARTCODE1, PN532_STARTCODE2, 0x00, 0xFF, PN532_POSTAMBLE};
 
@@ -17,23 +19,28 @@ static uint8_t * PN532_send_buf_data = PN532_send_buf + 5;
 static uint8_t PN532_recv_buf[PN532_RECV_BUF_SIZE];
 uint8_t * get_PN532_recv_buf(void) { return PN532_recv_buf; }
 
+#ifdef PN532_PRINT_DEBUG
 void PN532_print_mem(uint8_t *mem, uint8_t cnt, char * str)
 {
-/*
-    char PN532_print_mem_buf[128];
 
-    if (cnt > 0) {
-    	mem2str(mem, cnt, PN532_print_mem_buf, 128);
-    	ulog("PN532: ");
-    	ulog(str);
-    	ulog(" ");
-    	ulog(PN532_print_mem_buf);
-    	//ulog_fmt("(%ld)\r\n", (int)HAL_GetTick());
-    	ulog("\r\n");
+    char buf[128];
+    char tmp[3];
+
+    if (cnt) return;
+
+    buf[0] = '\0';
+    for (uint8_t i = 0; i < cnt; ++i) {
+      sprintf(tmp, "%02X", mem[i]);
+      strcat(buf, tmp);
     }
-*/
-}
 
+    printf("PN532: ");
+    printf(str);
+    printf(" ");
+    printf(buf);
+    printf("\r\n");
+}
+#endif
 
 
 //послать данные в PN532 с формироваеием фрейма
@@ -56,7 +63,9 @@ BOOL PN532_send_data(uint8_t *data, uint8_t data_len) {
     PN532_send_buf[5 + data_len] = (~checksum) & 0xFF;
     PN532_send_buf[6 + data_len] = PN532_POSTAMBLE;
 
+#ifdef PN532_PRINT_DEBUG
 	PN532_print_mem(PN532_send_buf, 7 + data_len, "send");
+#endif
 
     return PN532_TRANSMIT(PN532_send_buf, 7 + data_len, PN532_SEND_TIMEOUT);;
 }
@@ -66,13 +75,13 @@ BOOL PN532_send_data(uint8_t *data, uint8_t data_len) {
 //wait for byte PN532_I2C_READY
 BOOL PN532_WaitReady(uint32_t timeout) {
     uint8_t b;
-    uint32_t tickstart = HAL_GetTick();
+    uint32_t tickstart = PN532_GET_TICK();
 
-    while (HAL_Diff(tickstart) < timeout) {
+    while (PN532_TICK_DIFF(tickstart) < timeout) {
     	if (PN532_RECEIVE(&b, 1, timeout)) {
             if (b == PN532_I2C_READY) return TRUE;
     	}
-    	HAL_Delay(1);
+    	PN532_DELAY(1);
     }
     return FALSE;
 }
@@ -105,7 +114,9 @@ BOOL PN532_recv_ack(void) {
 
 	if (PN532_recv_buf[0] != PN532_I2C_READY) return 0;
 
+#ifdef PN532_PRINT_DEBUG
 	PN532_print_mem(PN532_recv_buf, cnt, "recv ack");
+#endif
 
 	return (0 == memcmp(PN532_recv_buf + 1, pn532_ack, sizeof(pn532_ack)));
 }
@@ -143,7 +154,9 @@ uint8_t * PN532_recv_data(uint8_t * buf, uint8_t buf_size, uint8_t * data_len)
 
 	cnt = PN532_recv(buf, buf_size);
 
+#ifdef PN532_PRINT_DEBUG
 	PN532_print_mem(buf, cnt, "recv data");
+#endif
 
 	if (cnt < 8) return NULL;
 

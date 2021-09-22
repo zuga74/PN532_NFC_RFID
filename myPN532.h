@@ -63,8 +63,18 @@
 #define PN532_RECV_DATA_TIMEOUT			15
 #endif
 
+#ifndef PN532_DELAY
+#define PN532_DELAY						HAL_Delay
+#endif
 
-uint8_t * get_PN532_recv_buf(void);
+#ifndef PN532_TICK_DIFF
+#define PN532_TICK_DIFF(t)				( (HAL_GetTick() >= t) ? (HAL_GetTick() - t) : (0xFFFFFFFF - t + HAL_GetTick()) )
+#endif
+
+#ifndef PN532_GET_TICK
+#define PN532_GET_TICK					HAL_GetTick
+#endif
+
 
 // ---------------------------- SOFTWARE -----------------------------
 
@@ -191,7 +201,6 @@ uint8_t * get_PN532_recv_buf(void);
 #define PN532_PARAM_ISO14443_4_BIT				(5)
 #define PN532_PARAM_REMOVE_PRE_POST_AMBLE_BIT	(6)
 
-
 /* Official PN532 Errors Definitions */
 #define PN532_ERROR_NONE                                                (0x00)
 // Time Out, the target has not answered
@@ -289,6 +298,9 @@ uint8_t * get_PN532_recv_buf(void);
 //framing data len not good
 #define PN532_ERROR_FRAMING_LEN												(0xe8)
 
+
+//get PN532 recv buffer
+uint8_t * get_PN532_recv_buf(void);
 
 //All functions return PN532_ERROR_NONE if there are no errors, or error codes as described above
 
