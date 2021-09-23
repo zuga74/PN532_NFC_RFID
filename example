@@ -1,4 +1,4 @@
-//Create an empty file myPN532_def.h. Add the necessary files in it:
+//In the file myPN532_def.h include the necessary files, and if necessary, override the constants
 #include "main.h"
 ....
 
@@ -13,20 +13,7 @@ uint8_t pn532_state = 0;
 #define PN532_STATE_GET_VERSION		2
 #define PN532_STATE_SEND_SAM		3
 #define PN532_STATE_READ_RFID		4
-#define PN532_STATE_READ_WAIT_RFID	5
 
-//difference of two ticks
-uint32_t HAL_Tick_Diff(uint32_t to, uint32_t tn)
-{
-	if (tn >= to) return tn - to;
-	else return 0xFFFFFFFF - to + tn;
-}
-
-//difference with current HAL_GetTick
-uint32_t HAL_Diff(uint32_t t)
-{
-	return HAL_Tick_Diff(t, HAL_GetTick());
-}
 
 void PN532_detect_uid(uint8_t *uid, uint8_t uid_len)
 {
@@ -61,14 +48,14 @@ void rfid_task(void)
 		    pn532_state = PN532_STATE_UNSET_RESET;
 		    break;
 		case  PN532_STATE_UNSET_RESET:
-			if (HAL_Diff(rfid_tick) > 500) {
+			if (PN532_TICK_DIFF(rfid_tick) > 500) { //after 500 milliseconds
 			    HAL_GPIO_WritePin(PN532_RST_GPIO_Port, PN532_RST_Pin, GPIO_PIN_SET);
 				rfid_tick = HAL_GetTick();
 				pn532_state = PN532_STATE_GET_VERSION;
 			}
 			break;
 		case PN532_STATE_GET_VERSION:
-			if (HAL_Diff(rfid_tick) > 1000) {
+			if (PN532_TICK_DIFF(rfid_tick) > 1000) { //after 1 second
 				PN532_res = PN532_GetFirmVersion(PN532_version);
 				if (PN532_res == PN532_ERROR_NONE) {
 					ulog_fmt("PN532: found with firmware version: %d.%d\r\n", PN532_version[1], PN532_version[2]);
@@ -91,7 +78,7 @@ void rfid_task(void)
 			}
 			break;
 		case PN532_STATE_READ_RFID:
-			if (HAL_Diff(rfid_tick) > 800) {
+			if (PN532_TICK_DIFF(rfid_tick) > 800) { //every 800 milliseconds
 				rfid_tick = HAL_GetTick();
 				PN532_res = PN532_ReadPassTarget(PN532_MIFARE_ISO14443A, uid, MIFARE_UID_MAX_LENGTH, &uid_len);
 				if (PN532_res == PN532_ERROR_NONE) {
