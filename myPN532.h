@@ -299,10 +299,9 @@
 #define PN532_ERROR_FRAMING_LEN												(0xe8)
 
 
-//get PN532 recv buffer
-uint8_t * get_PN532_recv_buf(void);
 
-//All functions return PN532_ERROR_NONE if there are no errors, or error codes as described above
+
+//All functions (uint8_t) return PN532_ERROR_NONE if there are no errors or the error code described above
 
 //Configures the SAM (Secure Access Module) (mode - see documentation, timeout - timeout in ms, use_irq - use IRQ pin)
 BOOL PN532_SendSamConfig(uint8_t mode, uint8_t timeout, uint8_t use_irq);
@@ -338,5 +337,22 @@ uint8_t PN532_Ntag2xxReadBlock(uint8_t block_number, uint8_t * block_data);
 BOOL PN532_SendNtag2xxWriteBlock(uint8_t block_number, uint8_t * block_data);
 uint8_t PN532_Ntag2xxWriteBlock(uint8_t block_number, uint8_t * block_data);
 
+
+//The functions below can be used for asynchronous interrupt operations.
+
+//get PN532 recv buffer, returns a pointer to the receiving buffer
+uint8_t * get_PN532_recv_buf(void);
+//send data to PN532 with framing
+BOOL PN532_send_data(uint8_t *data, uint8_t data_len);
+//wait for byte PN532_I2C_READY
+BOOL PN532_WaitReady(uint32_t timeout);
+//get data from PN532, returns the number of bytes received
+uint8_t PN532_recv(uint8_t * buf, uint8_t how);
+//get ACK from PN532
+BOOL PN532_recv_ack(void);
+//parsing the PN532 frame, returns a pointer to data, and the number of data bytes data_len
+uint8_t * PN532_parse_frame(uint8_t * buf, uint8_t buf_size, uint8_t * data_len);
+//get data from PN532 and parse frame, returns a pointer to data, and the number of data bytes data_len
+uint8_t * PN532_recv_data(uint8_t * buf, uint8_t buf_size, uint8_t * data_len);
 
 #endif /* PN532_MYPN532_H_ */

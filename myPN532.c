@@ -146,8 +146,8 @@ uint8_t * PN532_parse_frame(uint8_t * buf, uint8_t buf_size, uint8_t * data_len)
     return buf + 5;
 }
 
-//получить данные из PN532
-//get data from PN532
+//получить данные из PN532 и парсинг фрэйма
+//get data from PN532 and parse frame
 uint8_t * PN532_recv_data(uint8_t * buf, uint8_t buf_size, uint8_t * data_len)
 {
 	uint8_t cnt, * data = NULL, i;
