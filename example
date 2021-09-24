@@ -1,4 +1,4 @@
-//In the file myPN532_def.h include the necessary files, and if necessary, override the constants
+//In the file PN532_def.h include the necessary files, and if necessary, override the constants
 #include "main.h"
 ....
 

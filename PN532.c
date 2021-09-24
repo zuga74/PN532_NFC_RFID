@@ -5,8 +5,9 @@
  *      Author: lenovo
  */
 
-#include "myPN532.h"
 #include <string.h>
+
+#include "PN532.h"
 #ifdef PN532_PRINT_DEBUG
 #include <stdio.h>
 #endif

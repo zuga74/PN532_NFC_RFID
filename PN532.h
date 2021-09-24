@@ -5,10 +5,44 @@
  *      Author: Rafael Boltachev
  */
 
-#ifndef PN532_MYPN532_H_
-#define PN532_MYPN532_H_
+#ifndef PN532_PN532_H_
+#define PN532_PN532_H_
 
-#include "myPN532_def.h"
+#include "PN532_def.h"
+
+
+// ---------------------------- HARDWARE -----------------------------
+
+#ifndef PN532_I2C_HANDLE
+#define PN532_I2C_HANDLE 				hi2c2
+#endif
+
+#ifndef PN532_I2C_ADDR
+#define PN532_I2C_ADDR					(0x24 << 1)
+#endif
+
+#ifndef PN532_TRANSMIT
+#define PN532_TRANSMIT(b, s, t) 		(HAL_I2C_Master_Transmit(&PN532_I2C_HANDLE, PN532_I2C_ADDR, b, s, t) == HAL_OK)
+#endif
+
+#ifndef PN532_RECEIVE
+#define PN532_RECEIVE(b, s, t) 			(HAL_I2C_Master_Receive(&PN532_I2C_HANDLE, PN532_I2C_ADDR, b, s, t) == HAL_OK)
+#endif
+
+#ifndef PN532_DELAY
+#define PN532_DELAY						HAL_Delay
+#endif
+
+#ifndef PN532_TICK_DIFF
+#define PN532_TICK_DIFF(t)				( (HAL_GetTick() >= t) ? (HAL_GetTick() - t) : (0xFFFFFFFF - t + HAL_GetTick()) )
+#endif
+
+#ifndef PN532_GET_TICK
+#define PN532_GET_TICK					HAL_GetTick
+#endif
+
+
+// ---------------------------- SOFTWARE -----------------------------
 
 #ifndef BOOL
 #define BOOL _Bool
@@ -26,22 +60,6 @@
 #define FALSE 0
 #endif
 
-// ---------------------------- HARDWARE -----------------------------
-#ifndef PN532_I2C_HANDLE
-#define PN532_I2C_HANDLE 				hi2c2
-#endif
-
-#ifndef PN532_I2C_ADDR
-#define PN532_I2C_ADDR					(0x24 << 1)
-#endif
-
-#ifndef PN532_TRANSMIT
-#define PN532_TRANSMIT(b, s, t) 		(HAL_I2C_Master_Transmit(&PN532_I2C_HANDLE, PN532_I2C_ADDR, b, s, t) == HAL_OK)
-#endif
-
-#ifndef PN532_RECEIVE
-#define PN532_RECEIVE(b, s, t) 			(HAL_I2C_Master_Receive(&PN532_I2C_HANDLE, PN532_I2C_ADDR, b, s, t) == HAL_OK)
-#endif
 
 #ifndef PN532_SEND_BUF_SIZE
 #define PN532_SEND_BUF_SIZE				64
@@ -62,21 +80,6 @@
 #ifndef PN532_RECV_DATA_TIMEOUT
 #define PN532_RECV_DATA_TIMEOUT			15
 #endif
-
-#ifndef PN532_DELAY
-#define PN532_DELAY						HAL_Delay
-#endif
-
-#ifndef PN532_TICK_DIFF
-#define PN532_TICK_DIFF(t)				( (HAL_GetTick() >= t) ? (HAL_GetTick() - t) : (0xFFFFFFFF - t + HAL_GetTick()) )
-#endif
-
-#ifndef PN532_GET_TICK
-#define PN532_GET_TICK					HAL_GetTick
-#endif
-
-
-// ---------------------------- SOFTWARE -----------------------------
 
 
 #define PN532_I2C_READY                     (0x01)
@@ -355,4 +358,4 @@ uint8_t * PN532_parse_frame(uint8_t * buf, uint8_t buf_size, uint8_t * data_len)
 //get data from PN532 and parse frame, returns a pointer to data, and the number of data bytes data_len
 uint8_t * PN532_recv_data(uint8_t * buf, uint8_t buf_size, uint8_t * data_len);
 
-#endif /* PN532_MYPN532_H_ */
+#endif /* PN532_PN532_H_ */
