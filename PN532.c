@@ -1,5 +1,5 @@
 /*
- * myPN532.c
+ * PN532.c
  *
  *  Created on: 21 июн. 2021 г.
  *      Author: lenovo

@@ -1,5 +1,5 @@
 /*
- * PN532.h
+ * PN532_def.h
  *
  *  Created on: 20 сент. 2021 г.
  *      Author: Rafael Boltachev

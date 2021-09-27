@@ -1,5 +1,5 @@
 /*
- * myPN532.h
+ * PN532.h
  *
  *  Created on: 21 июн. 2021 г.
  *      Author: Rafael Boltachev
@@ -304,44 +304,66 @@
 
 
 
-//All functions (uint8_t) return PN532_ERROR_NONE if there are no errors or the error code described above
+//-------------------------------------------------------------------------
+//The functions below work in blocking mode.
+//All functions below return PN532_ERROR_NONE if there are no errors or the error codes described above.
+//-------------------------------------------------------------------------
 
 //Configures the SAM (Secure Access Module) (mode - see documentation, timeout - timeout in ms, use_irq - use IRQ pin)
-BOOL PN532_SendSamConfig(uint8_t mode, uint8_t timeout, uint8_t use_irq);
 uint8_t PN532_SetSamConfig(uint8_t mode, uint8_t timeout, uint8_t use_irq);
 //Get the firmware version of the PN5xx chip
-BOOL PN532_SendGetFirmwareVersion(void);
 uint8_t PN532_GetFirmVersion(uint8_t * version);
 //Reads the ID of the passive target the reader has deteceted. (uid buffer under the ID, uid_size its size. ID uid_len - read size)
-BOOL PN532_SendReadPassiveTarget(uint8_t card_baud);
 uint8_t PN532_ReadPassTarget(uint8_t card_baud, uint8_t * uid, uint8_t uid_size, uint8_t *uid_len);
 //Tries to authenticate a block of memory on a MIFARE card (key_number - MIFARE_CMD_AUTH_A or MIFARE_CMD_AUTH_B, key - secret key[6])
-BOOL PN532_SendMifareClassicAuthBlock(uint8_t *uid, uint8_t uid_len,  uint8_t block_number,  uint8_t key_number, uint8_t * key);
 uint8_t PN532_MifareClassicAuthBlock(uint8_t *uid, uint8_t uid_len,  uint8_t block_number,  uint8_t key_number, uint8_t * key);
 //Tries to read an entire 16-byte data block at the specified block address. (block_data read data[16])
-BOOL PN532_SendReadDataBlock(uint8_t block_number);
 uint8_t PN532_ReadDataBlock(uint8_t block_number, uint8_t * block_data);
 //Tries to write an entire 16-byte data block at the specified block address. (block_data write data[16])
-BOOL PN532_SendWriteDataBlock(uint8_t block_number,  uint8_t * block_data);
 uint8_t PN532_WriteDataBlock(uint8_t block_number,  uint8_t * block_data);
 //PN532_SetParameters (params - see documentation)
-BOOL PN532_SendSetParameters(uint8_t params);
 uint8_t PN532_SetParameters(uint8_t params);
 
 
 
 //Ntag2xx authenticate (pwd - see documentation)
-BOOL PN532_SendNtag2xxAuth(uint8_t * pwd);
 uint8_t PN532_Ntag2xxAuth(uint8_t * pwd, uint8_t* response);
 //Tries to read an entire 4-byte page at the specified address.
-BOOL PN532_SendNtag2xxReadBlock(uint8_t block_number);
 uint8_t PN532_Ntag2xxReadBlock(uint8_t block_number, uint8_t * block_data);
 //Tries to write an entire 4-byte page at the specified block address.
-BOOL PN532_SendNtag2xxWriteBlock(uint8_t block_number, uint8_t * block_data);
 uint8_t PN532_Ntag2xxWriteBlock(uint8_t block_number, uint8_t * block_data);
 
 
-//The functions below can be used for asynchronous interrupt operations.
+
+
+
+//-------------------------------------------------------------------------
+//The functions below can be used for non-blocking operations.
+//-------------------------------------------------------------------------
+
+//Configures the SAM (Secure Access Module) (mode - see documentation, timeout - timeout in ms, use_irq - use IRQ pin)
+BOOL PN532_SendSamConfig(uint8_t mode, uint8_t timeout, uint8_t use_irq);
+//Get the firmware version of the PN5xx chip
+BOOL PN532_SendGetFirmwareVersion(void);
+//Reads the ID of the passive target the reader has deteceted. (uid buffer under the ID, uid_size its size. ID uid_len - read size)
+BOOL PN532_SendReadPassiveTarget(uint8_t card_baud);
+//Tries to authenticate a block of memory on a MIFARE card (key_number - MIFARE_CMD_AUTH_A or MIFARE_CMD_AUTH_B, key - secret key[6])
+BOOL PN532_SendMifareClassicAuthBlock(uint8_t *uid, uint8_t uid_len,  uint8_t block_number,  uint8_t key_number, uint8_t * key);
+//Tries to read an entire 16-byte data block at the specified block address. (block_data read data[16])
+BOOL PN532_SendReadDataBlock(uint8_t block_number);
+//Tries to write an entire 16-byte data block at the specified block address. (block_data write data[16])
+BOOL PN532_SendWriteDataBlock(uint8_t block_number,  uint8_t * block_data);
+//PN532_SetParameters (params - see documentation)
+BOOL PN532_SendSetParameters(uint8_t params);
+
+
+//Ntag2xx authenticate (pwd - see documentation)
+BOOL PN532_SendNtag2xxAuth(uint8_t * pwd);
+//Tries to read an entire 4-byte page at the specified address.
+BOOL PN532_SendNtag2xxReadBlock(uint8_t block_number);
+//Tries to write an entire 4-byte page at the specified block address.
+BOOL PN532_SendNtag2xxWriteBlock(uint8_t block_number, uint8_t * block_data);
+
 
 //get PN532 recv buffer, returns a pointer to the receiving buffer
 uint8_t * get_PN532_recv_buf(void);
