@@ -13,34 +13,40 @@
 
 // ---------------------------- HARDWARE -----------------------------
 
+//I2C device handle
 #ifndef PN532_I2C_HANDLE
 #define PN532_I2C_HANDLE 				hi2c2
 #endif
 
+//I2C device address
 #ifndef PN532_I2C_ADDR
 #define PN532_I2C_ADDR					(0x24 << 1)
 #endif
 
+//Send data to PN532
 #ifndef PN532_TRANSMIT
 #define PN532_TRANSMIT(b, s, t) 		(HAL_I2C_Master_Transmit(&PN532_I2C_HANDLE, PN532_I2C_ADDR, b, s, t) == HAL_OK)
 #endif
 
+//Receive data from PN532
 #ifndef PN532_RECEIVE
 #define PN532_RECEIVE(b, s, t) 			(HAL_I2C_Master_Receive(&PN532_I2C_HANDLE, PN532_I2C_ADDR, b, s, t) == HAL_OK)
 #endif
 
+//Delay in milliseconds
 #ifndef PN532_DELAY
 #define PN532_DELAY						HAL_Delay
 #endif
 
-#ifndef PN532_TICK_DIFF
-#define PN532_TICK_DIFF(t)				( (HAL_GetTick() >= t) ? (HAL_GetTick() - t) : (0xFFFFFFFF - t + HAL_GetTick()) )
-#endif
-
+//Returns the time in milliseconds
 #ifndef PN532_GET_TICK
 #define PN532_GET_TICK					HAL_GetTick
 #endif
 
+//Difference with current time
+#ifndef PN532_TICK_DIFF
+#define PN532_TICK_DIFF(t)				( (PN532_GET_TICK() >= t) ? (PN532_GET_TICK() - t) : (0xFFFFFFFF - t + PN532_GET_TICK()) )
+#endif
 
 // ---------------------------- SOFTWARE -----------------------------
 
@@ -60,23 +66,27 @@
 #define FALSE 0
 #endif
 
-
+//Buffer size for a sent data
 #ifndef PN532_SEND_BUF_SIZE
 #define PN532_SEND_BUF_SIZE				64
 #endif
 
+//Buffer size for received data
 #ifndef PN532_RECV_BUF_SIZE
 #define PN532_RECV_BUF_SIZE				64
 #endif
 
+//Timeout for sending data to PN532
 #ifndef PN532_SEND_TIMEOUT
 #define PN532_SEND_TIMEOUT				100
 #endif
 
+//Timeout to receive Ready from PN532
 #ifndef PN532_RECV_READY_TIMEOUT
 #define PN532_RECV_READY_TIMEOUT		25
 #endif
 
+//Timeout for receiving data from PN532
 #ifndef PN532_RECV_DATA_TIMEOUT
 #define PN532_RECV_DATA_TIMEOUT			15
 #endif
