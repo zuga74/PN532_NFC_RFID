@@ -5,8 +5,13 @@
 
 //In code
 
+void log(const char * fmt, ... )
+{
+...
+}
+
 static uint32_t rfid_tick = 0;
-uint8_t pn532_state = 0;
+static uint8_t pn532_state = 0;
 
 #define PN532_STATE_SET_RESET		0
 #define PN532_STATE_UNSET_RESET		1
@@ -23,13 +28,16 @@ void PN532_detect_uid(uint8_t *uid, uint8_t uid_len)
 	uint8_t block_data[16];
 	
 	PN532_res = PN532_MifareClassicAuthBlock(uid, uid_len, block_number, MIFARE_CMD_AUTH_A, key_auth);
-	ulog_fmt("PN532: MifareClassicAuthenticateBlock read_block er = %d block = %d\r\n", PN532_res, block_number);
+	log("PN532: MifareClassicAuthenticateBlock read_block er = %d block = %d\r\n", PN532_res, block_number);
 	if (PN532_res != PN532_ERROR_NONE) return;
 	PN532_res = PN532_ReadDataBlock(block_number, block_data);
-	ulog_fmt("PN532: ReadDataBlock read_block er = %d block = %d\r\n", PN532_res, block_number);
+	log("PN532: ReadDataBlock read_block er = %d block = %d\r\n", PN532_res, block_number);
 	if (PN532_res != PN532_ERROR_NONE) return;
 	...
 }	
+
+#define PN532_SET_RESET 		HAL_GPIO_WritePin(PN532_RST_GPIO_Port, PN532_RST_Pin, GPIO_PIN_RESET)
+#define PN532_UNSET_RESET		HAL_GPIO_WritePin(PN532_RST_GPIO_Port, PN532_RST_Pin, GPIO_PIN_SET)
 
 void rfid_task(void)
 {
@@ -42,15 +50,15 @@ void rfid_task(void)
 	switch (pn532_state)
 	{
 		case  PN532_STATE_SET_RESET:
-		    ulog("PN532: reset\r\n");
-		    HAL_GPIO_WritePin(PN532_RST_GPIO_Port, PN532_RST_Pin, GPIO_PIN_RESET);
-		    rfid_tick = HAL_GetTick();
+		    log("PN532: reset\r\n");
+		    PN532_SET_RESET;
+		    rfid_tick = PN532_GET_TICK();
 		    pn532_state = PN532_STATE_UNSET_RESET;
 		    break;
 		case  PN532_STATE_UNSET_RESET:
 			if (PN532_TICK_DIFF(rfid_tick) > 500) { //after 500 milliseconds
-			    HAL_GPIO_WritePin(PN532_RST_GPIO_Port, PN532_RST_Pin, GPIO_PIN_SET);
-				rfid_tick = HAL_GetTick();
+			    PN532_UNSET_RESET;
+				rfid_tick = PN532_GET_TICK();
 				pn532_state = PN532_STATE_GET_VERSION;
 			}
 			break;
@@ -58,10 +66,10 @@ void rfid_task(void)
 			if (PN532_TICK_DIFF(rfid_tick) > 1000) { //after 1 second
 				PN532_res = PN532_GetFirmVersion(PN532_version);
 				if (PN532_res == PN532_ERROR_NONE) {
-					ulog_fmt("PN532: found with firmware version: %d.%d\r\n", PN532_version[1], PN532_version[2]);
+					log("PN532: found with firmware version: %d.%d\r\n", PN532_version[1], PN532_version[2]);
 					pn532_state = PN532_STATE_SEND_SAM;
 				} else {
-					ulog_fmt("PN532: GetFirmVersion not found error=%d\r\n", PN532_res);
+					log("PN532: GetFirmVersion not found error=%d\r\n", PN532_res);
 					pn532_state = PN532_STATE_SET_RESET;
 				}
 			}
@@ -69,22 +77,21 @@ void rfid_task(void)
 		case PN532_STATE_SEND_SAM:
 			PN532_res = PN532_SetSamConfig(0x01, 0x14,  0x01);
 			if (PN532_res == PN532_ERROR_NONE) {
-				ulog("PN532: SamConfig ok\r\n");
-				rfid_tick = HAL_GetTick();
+				log("PN532: SamConfig ok\r\n");
+				rfid_tick = PN532_GET_TICK();
 				pn532_state = PN532_STATE_READ_RFID;
 			} else {
-				ulog_fmt("PN532: SamConfig error=%d\r\n", PN532_res);
+				log("PN532: SamConfig error=%d\r\n", PN532_res);
 				pn532_state = PN532_STATE_SET_RESET;
 			}
 			break;
 		case PN532_STATE_READ_RFID:
 			if (PN532_TICK_DIFF(rfid_tick) > 800) { //every 800 milliseconds
-				rfid_tick = HAL_GetTick();
+				rfid_tick = PN532_GET_TICK();
 				PN532_res = PN532_ReadPassTarget(PN532_MIFARE_ISO14443A, uid, MIFARE_UID_MAX_LENGTH, &uid_len);
 				if (PN532_res == PN532_ERROR_NONE) {
 					PN532_detect_uid(uid, uid_len);
 				} else {
-					//ulog_fmt("PN532: not read target error=%d\r\n", PN532_res);
 					if (PN532_res != PN532_ERROR_RECV_DATA) pn532_state = PN532_STATE_SET_RESET; 
 				}
 			}
